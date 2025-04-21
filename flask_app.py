@@ -68,4 +68,5 @@ def detect_text():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    port = int(os.environ.get('PORT', 5000))  # 默认使用 5000，如果没有设置环境变量 PORT
+    app.run(debug=True, host='0.0.0.0', port=port)
