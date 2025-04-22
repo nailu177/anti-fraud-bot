@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>了解Anti-Fraud 防诈骗bot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --bg-color: #f7f7f8;
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --text-color: #1f2a44;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #1a1a1c;
+                --card-bg: rgba(30, 30, 30, 0.8);
+                --text-color: #ffffff;
+            }
+            .chatgpt-btn {
+                background: #2d2d2d;
+                color: #ffffff;
+            }
+            .chatgpt-btn:hover {
+                background: #3d3d3d;
+            }
+            .modal-content {
+                background: #2d2d2d;
+            }
+        }
+        body {
+            background: var(--bg-color);
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        .glass {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .chatgpt-btn {
+            background: #ffffff;
+            color: #000000;
+            border: 1px solid #e5e7eb;
+            transition: all 0.2s ease;
+        }
+        .chatgpt-btn:hover {
+            background: #e5e7eb;
+        }
+        .result-enter {
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .title-enter {
+            animation: fadeIn 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .dropdown-menu {
+            display: none;
+            z-index: 50;
+        }
+        .dropdown-menu.show {
+            display: block;
+        }
+        .dropdown-menu a:hover {
+            background: #e5e7eb;
+        }
+        .flowchart-img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            display: block;
+            margin: 0 auto;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        .flowchart-img:hover {
+            transform: scale(1.1);
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: #ffffff;
+            border-radius: 8px;
+            max-width: 90%;
+            max-height: 90%;
+        }
+        .modal-content img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-4">
+    <!-- 导航 -->
+    <nav class="w-full max-w-5xl flex justify-between items-center mb-8">
+        <a href="index.html" class="text-lg font-semibold text-[var(--text-color)]">Anti-Fraud 🛡</a>
+        <div class="dropdown relative">
+            <button id="menuButton" class="text-[var(--text-color)] focus:outline-none">☰</button>
+            <div id="dropdownMenu" class="dropdown-menu absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
+                <a href="index.html" class="block px-4 py-2 text-sm text-[var(--text-color)] hover:bg-gray-100 dark:hover:bg-gray-700">首页</a>
+                <a href="detect.html" class="block px-4 py-2 text-sm text-[var(--text-color)] hover:bg-gray-100 dark:hover:bg-gray-700">检测</a>
+                <a href="learn.html" class="block px-4 py-2 text-sm text-[var(--text-color)] hover:bg-gray-100 dark:hover:bg-gray-700">了解更多</a>
+            </div>
+        </div>
+    </nav>
+    <!-- 内容 -->
+    <div class="w-full max-w-5xl flex flex-col md:flex-row gap-6">
+        <!-- 左半边：样例演示 -->
+        <div class="glass p-6 rounded-3xl shadow-lg w-full md:w-1/2">
+            <div class="text-center mb-6 title-enter">
+                <h1 class="text-2xl font-bold text-[var(--text-color)] bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+                    Anti-Fraud 防诈骗bot 🛡
+                </h1>
+                <p class="text-sm text-[var(--text-color)] opacity-70 mt-1">
+                    您的防诈有力助手 守卫您的财产安全
+                </p>
+                <p class="text-sm text-[var(--text-color)] opacity-70 mt-2">
+                    使用Whisper模型转录音频，结合BERT模型检测诈骗，支持音频和文本输入，覆盖电话和短信诈骗场景。
+                </p>
+            </div>
+            <h2 class="text-lg font-semibold text-[var(--text-color)] mb-4">样例演示</h2>
+            <div class="space-y-4">
+                <div class="p-3 bg-white dark:bg-gray-800 rounded-lg result-enter">
+                    <p class="text-sm font-medium text-[var(--text-color)]">音频: sample_audio.wav</p>
+                    <p class="text-sm text-[var(--text-color)] opacity-80">转录: 您好，我们是公安局，您的账户涉及洗钱案，请立即转账到安全账户。</p>
+                    <p class="text-sm text-[var(--text-color)] opacity-80">预测: 诈骗</p>
+                    <p class="text-sm text-[var(--text-color)] opacity-80">置信度: 0.9500</p>
+                    <p class="text-sm"><span class="font-medium text-[var(--text-color)]">警告: </span><span class="text-red-500">检测到诈骗！请提高警惕！</span></p>
+                </div>
+                <div class="p-3 bg-white dark:bg-gray-800 rounded-lg result-enter">
+                    <p class="text-sm font-medium text-[var(--text-color)]">文本: 您的银行卡有异常扣款，请提供密码核实身份。</p>
+                    <p class="text-sm text-[var(--text-color)] opacity-80">预测: 诈骗</p>
+                    <p class="text-sm text-[var(--text-color)] opacity-80">置信度: 0.9200</p>
+                    <p class="text-sm"><span class="font-medium text-[var(--text-color)]">警告: </span><span class="text-red-500">检测到诈骗！请提高警惕！</span></p>
+                </div>
+                <div class="p-3 bg-white dark:bg-gray-800 rounded-lg result-enter">
+                    <p class="text-sm font-medium text-[var(--text-color)]">文本: 你好，我想问一下今天的天气。</p>
+                    <p class="text-sm text-[var(--text-color)] opacity-80">预测: 正常</p>
+                    <p class="text-sm text-[var(--text-color)] opacity-80">置信度: 0.8700</p>
+                    <p class="text-sm"><span class="font-medium text-[var(--text-color)]">警告: </span><span class="text-green-500">无诈骗风险</span></p>
+                </div>
+            </div>
+            <a href="detect.html" class="block w-full p-3 rounded-full chatgpt-btn text-center mt-6 flex items-center justify-center">
+                体验Anti-Fraud Bot
+                <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </a>
+        </div>
+        <!-- 右半边：模型训练基本介绍 -->
+        <div class="glass p-6 rounded-3xl shadow-lg w-full md:w-1/2">
+            <h2 class="text-lg font-semibold text-[var(--text-color)] mb-4">模型训练基本介绍</h2>
+            <div class="space-y-6 text-sm text-[var(--text-color)] opacity-80">
+                <!-- 背景与动机 -->
+                <div>
+                    <h3 class="text-base font-semibold mb-2 text-[var(--text-color)] opacity-90">背景与动机</h3>
+                    <p class="pl-2">
+                        随着网络诈骗、电信诈骗越来越猖獗，我们意识到现在缺乏一款用途泛化，便于自用监察的防诈骗聊天式模型来帮助缺乏相应经验的民众及早意识到诈骗陷阱。
+                        于是我们开发了Anti-Fraud Bot——一款多模态防诈骗模型，支持音频、文本以及图像识别。我们希望通过Anti-Fraud Bot帮助更多人免于掉进各式各样的诈骗陷阱。
+                    </p>
+                </div>
+                <!-- 技术实现 -->
+                <div>
+                    <h3 class="text-base font-semibold mb-2 text-[var(--text-color)] opacity-90">技术实现</h3>
+                    <p class="pl-2">
+                        模型训练的数据来源于GitHub上公布的诈骗文本以及TextGAN文本对抗式生成网络。我们借助Whisper模型将音频转换为文本，用BERT分类识别。
+                        训练集与验证集按照9:1的比例进行划分，BERT的权重来自于HuggingFace的Bert-Chinese仓库，更多训练细节将逐步公布。
+                    </p>
+                </div>
+                <!-- 模型性能 -->
+                <div>
+                    <h3 class="text-base font-semibold mb-2 text-[var(--text-color)] opacity-90">模型性能</h3>
+                    <p class="pl-2">
+                        Anti-Fraud Bot经过训练以及改进的最好性能在验证集中达到acc：0.924，远高于作为baseline的初始训练模型的acc:0.615。
+                    </p>
+                </div>
+                <!-- 流程图 -->
+                <div class="mt-6">
+                    <h3 class="text-base font-semibold mb-2 text-[var(--text-color)] opacity-90">训练流程图</h3>
+                    <img src="flowchart1.png" alt="模型训练流程图" class="flowchart-img" id="flowchartImage">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框 -->
+    <div class="modal" id="imageModal">
+        <div class="modal-content">
+            <img src="flowchart1.png" alt="模型训练流程图">
+        </div>
+    </div>
+
+    <script>
+        const menuButton = document.getElementById('menuButton');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+        const flowchartImage = document.getElementById('flowchartImage');
+        const imageModal = document.getElementById('imageModal');
+
+        // 导航菜单展开/收起
+        menuButton.addEventListener('click', () => {
+            dropdownMenu.classList.toggle('show');
+        });
+
+        // 点击页面其他区域收起菜单
+        document.addEventListener('click', (event) => {
+            if (!menuButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+        // 点击图片显示模态框
+        flowchartImage.addEventListener('click', () => {
+            imageModal.style.display = 'flex';
+        });
+
+        // 点击模态框外部关闭
+        imageModal.addEventListener('click', (event) => {
+            if (event.target === imageModal) {
+                imageModal.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

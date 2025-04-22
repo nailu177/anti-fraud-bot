@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册 - Anti-Fraud 防诈骗bot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --bg-color: #f7f7f8;
+            --text-color: #1f2a44;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #1a1a1c;
+                --text-color: #ffffff;
+            }
+            .chatgpt-btn {
+                background: #2d2d2d;
+                color: #ffffff;
+            }
+            .chatgpt-btn:hover {
+                background: #3d3d3d;
+            }
+            input, button {
+                background: #2d2d2d;
+                color: #ffffff;
+                border-color: #4b5563;
+            }
+        }
+        body {
+            background: var(--bg-color);
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        .chatgpt-btn {
+            background: #ffffff;
+            color: #000000;
+            border: 1px solid #e5e7eb;
+            transition: all 0.2s ease;
+        }
+        .chatgpt-btn:hover {
+            background: #e5e7eb;
+        }
+        .title-enter {
+            animation: fadeIn 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .dropdown-menu {
+            display: none;
+        }
+        .dropdown-menu.show {
+            display: block;
+        }
+        .dropdown-menu a:hover {
+            background: #e5e7eb;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-4">
+    <!-- 导航 -->
+    <nav class="w-full max-w-4xl flex justify-between items-center mb-8">
+        <a href="index.html" class="text-lg font-semibold text-[var(--text-color)]">Anti-Fraud 🛡</a>
+        <div class="dropdown relative">
+            <button id="menuButton" class="text-[var(--text-color)] focus:outline-none">☰</button>
+            <div id="dropdownMenu" class="dropdown-menu absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
+                <a href="index.html" class="block px-4 py-2 text-sm text-[var(--text-color)] hover:bg-gray-100 dark:hover:bg-gray-700">首页</a>
+                <a href="detect.html" class="block px-4 py-2 text-sm text-[var(--text-color)] hover:bg-gray-100 dark:hover:bg-gray-700">检测</a>
+                <a href="learn.html" class="block px-4 py-2 text-sm text-[var(--text-color)] hover:bg-gray-100 dark:hover:bg-gray-700">了解更多</a>
+            </div>
+        </div>
+    </nav>
+    <!-- 内容 -->
+    <div class="text-center flex-1 flex flex-col justify-center w-full max-w-md">
+        <h1 class="text-3xl font-bold text-[var(--text-color)] mb-6 title-enter">
+            注册
+        </h1>
+        <!-- 注册表单 -->
+        <div class="mb-8">
+            <div class="space-y-3">
+                <input id="registerUsername" type="text" placeholder="用户名" class="w-full p-2 border rounded-lg">
+                <input id="registerPassword" type="password" placeholder="密码" class="w-full p-2 border rounded-lg">
+                <button onclick="register()" class="chatgpt-btn w-full p-2 rounded-lg">注册</button>
+            </div>
+            <p id="registerMessage" class="text-sm text-green-500 mt-2 hidden"></p>
+        </div>
+        <div class="text-right">
+            <a href="login.html" class="text-sm text-[var(--text-color)] hover:underline">已有账号？登录</a>
+        </div>
+    </div>
+
+    <script>
+        const menuButton = document.getElementById('menuButton');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+
+        menuButton.addEventListener('click', () => {
+            dropdownMenu.classList.toggle('show');
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!menuButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+        // 初始化用户数据
+        let users = JSON.parse(localStorage.getItem('users')) || [];
+
+        // 注册功能
+        function register() {
+            const username = document.getElementById('registerUsername').value;
+            const password = document.getElementById('registerPassword').value;
+            const message = document.getElementById('registerMessage');
+
+            if (!username || !password) {
+                message.textContent = '请填写用户名和密码！';
+                message.classList.remove('text-green-500', 'hidden');
+                message.classList.add('text-red-500');
+                return;
+            }
+
+            if (users.some(user => user.username === username)) {
+                message.textContent = '用户名已存在！';
+                message.classList.remove('text-green-500', 'hidden');
+                message.classList.add('text-red-500');
+                return;
+            }
+
+            users.push({ username, password });
+            localStorage.setItem('users', JSON.stringify(users));
+            message.textContent = '注册成功！';
+            message.classList.remove('text-red-500', 'hidden');
+            message.classList.add('text-green-500');
+        }
+    </script>
+</body>
+</html>

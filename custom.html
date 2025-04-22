@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自定义模块 - Anti-Fraud 防诈骗bot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --bg-color: #f7f7f8;
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --text-color: #1f2a44;
+            --code-bg: #f1f5f9;
+            --code-text: #1f2a44;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #1a1a1c;
+                --card-bg: rgba(30, 30, 30, 0.8);
+                --text-color: #ffffff;
+                --code-bg: #2d2d2d;
+                --code-text: #e5e7eb;
+            }
+            .copy-btn {
+                background: #4b5563;
+                color: #ffffff;
+            }
+            .copy-btn:hover {
+                background: #6b7280;
+            }
+        }
+        body {
+            background: var(--bg-color);
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        .glass {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .title-enter {
+            animation: fadeIn 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .dropdown-menu {
+            display: none;
+        }
+        .dropdown-menu.show {
+            display: block;
+        }
+        .dropdown-menu a:hover {
+            background: #e5e7eb;
+        }
+        .content-container {
+            max-height: 70vh;
+            overflow-y: auto;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        .code-block {
+            position: relative;
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-bottom: 1rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .code-block code {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            display: block;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: #e5e7eb;
+            color: #1f2a44;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: background 0.2s;
+        }
+        .copy-btn:hover {
+            background: #d1d5db;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-4">
+    <!-- 导航 -->
+    <nav class="w-full max-w-4xl flex justify-between items-center mb-8">
+        <a href="index.html" class="text-lg font-semibold text-[var(--text-color)]">Anti-Fraud 🛡</a>
+        <div class="dropdown relative">
+            <button id="menuButton" class="text-[var(--text-color)] focus:outline-none">☰</button>
+            <div id="dropdownMenu" class="dropdown-menu absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
+                <a href="index.html" class="block px-4 py-2 text-sm text-[var(--text-color)] hover:bg-gray-100 dark:hover:bg-gray-700">首页</a>
+                <a href="detect.html" class="block px-4 py-2 text-sm text-[var(--text-color)] hover:bg-gray-100 dark:hover:bg-gray-700">检测</a>
+                <a href="learn.html" class="block px-4 py-2 text-sm text-[var(--text-color)] hover:bg-gray-100 dark:hover:bg-gray-700">了解更多</a>
+            </div>
+        </div>
+    </nav>
+    <!-- 内容 -->
+    <div class="glass p-6 rounded-3xl shadow-lg w-full max-w-4xl flex-1 flex flex-col">
+        <div class="text-center mb-6 title-enter">
+            <h1 class="text-3xl font-bold text-[var(--text-color)]">
+                Bot Only For You
+            </h1>
+            <p class="text-sm text-[var(--text-color)] opacity-80 mt-1">
+                使用我们的公开代码，训练你自己的专属防诈骗模型，定制化保护你的财产安全。
+            </p>
+        </div>
+        <div class="content-container">
+            <!-- 自定义防诈骗模型使用说明 -->
+            <div class="mb-6">
+                <h2 class="text-xl font-semibold text-[var(--text-color)] mb-2">自定义专门诈骗类型的Anti-Fraud Bot教程</h2>
+                <p class="text-sm text-[var(--text-color)] opacity-80 mb-4">
+                    以下代码提供了从数据准备到模型训练、语音转录和实时诈骗检测的完整流程。你可以按照以下步骤自定义防诈骗模型：<br>
+                    1. <strong>准备数据</strong>：收集包含你想自定义类型的诈骗和正常文本的数据集（CSV 格式），确保有 `text` 和 `label` 列（0 表示正常，1 表示诈骗）。<br>
+                    2. <strong>训练 BERT 模型</strong>：使用数据集部分和训练函数部分，训练一个 BERT 分类器，保存模型权重。<br>
+                    3. <strong>处理语音数据</strong>：使用 Whisper 模型部分将语音转录为文本。<br>
+                    4. <strong>实时检测</strong>：使用 Fraud Detection Monitor 部分，加载训练好的模型，检测输入文本的诈骗风险。<br>
+                    5. <strong>部署</strong>：将模型集成到后端服务，通过 API 提供实时检测功能。<br>
+                    <strong>注意</strong>：请检查你的虚拟环境，并确保本地有 `bert-base-chinese` 模型权重和 `ffmpeg`。
+                </p>
+            </div>
+            <!-- 数据集部分 -->
+            <div class="mb-6">
+                <h2 class="text-xl font-semibold text-[var(--text-color)] mb-2">准备数据集</h2>
+                <p class="text-sm text-[var(--text-color)] opacity-80 mb-4">
+                    <strong>功能</strong>：加载针对某几类诈骗的训练和测试数据集，并拆分为训练集和验证集，用于后续 BERT 模型训练。<br>
+                    <strong>用法</strong>：确保数据集为 CSV 格式，包含 `text`和 `label`。代码会自动拆分数据。<br>
+                </p>
+                <div class="code-block" id="dataset-code">
+                    <button class="copy-btn" onclick="copyCode('dataset-code')">复制</button>
+                    <code>
+import pandas as pd
+from sklearn.model_selection import train_test_split
+
+# 加载数据
+train_df = pd.read_csv(r'D:\anti-fraud\Bert\fraud_train.csv')
+test_df = pd.read_csv(r'D:\anti-fraud\Bert\fraud_test.csv')
+
+# 确保列名正确，如需修改请根据实际列名调整
+train_texts, val_texts, train_labels, val_labels = train_test_split(
+    train_df['text'].tolist(), train_df['label'].tolist(), test_size=0.1, random_state=42
+)
+
+test_texts = test_df['text'].tolist()
+test_labels = test_df['label'].tolist()
+                    </code>
+                </div>
+            </div>
+            <!-- BERT 模型部分 -->
+            <div class="mb-6">
+                <h2 class="text-xl font-semibold text-[var(--text-color)] mb-2">使用BERT 模型</h2>
+                <p class="text-sm text-[var(--text-color)] opacity-80 mb-4">
+                    <strong>功能</strong>：BERT 模型和数据集类，用于文本分类。<br>
+                    <strong>用法</strong>：`BERTDataset` 将文本转为 BERT 输入格式，`BertClassifier` 使用 BERT 进行分类，输出诈骗概率。<br>
+                    <strong>需要补充</strong>：<br>
+                    - 修改 `model_path`（如 `D:\anti-fraud\bert-base-chinese`），指向你本地下载的 `bert-base-chinese` 模型路径。<br>
+                    - 根据需要调整 `max_length`（默认 128）和 `dropout`（默认 0.5）。
+                </p>
+                <div class="code-block" id="bert-code">
+                    <button class="copy-btn" onclick="copyCode('bert-code')">复制</button>
+                    <code>
+import torch
+from torch import nn
+from torch.utils.data import Dataset
+from transformers import BertTokenizer, BertModel
+
+# 本地文件夹路径
+model_path = r"D:\anti-fraud\bert-base-chinese"
+
+# 加载本地模型和tokenizer
+tokenizer = BertTokenizer.from_pretrained(model_path)
+model = BertModel.from_pretrained(model_path)
+
+# 自定义 Dataset
+class BERTDataset(Dataset):
+    def __init__(self, texts, labels):
+        self.encodings = tokenizer(texts, truncation=True, padding=True, max_length=128, return_tensors="pt")
+        self.labels = torch.tensor(labels)
+
+    def __getitem__(self, idx):
+        return {key: val[idx] for key, val in self.encodings.items()}, self.labels[idx]
+
+    def __len__(self):
+        return len(self.labels)
+
+# 模型定义
+class BertClassifier(nn.Module):
+    def __init__(self, dropout=0.5, num_labels=2, model_path=None):
+        super(BertClassifier, self).__init__()
+        self.bert = BertModel.from_pretrained(model_path)
+        self.dropout = nn.Dropout(dropout)
+        self.classifier = nn.Linear(768, num_labels)
+
+    def forward(self, input_id, mask):
+        _, pooled_output = self.bert(input_ids=input_id, attention_mask=mask, return_dict=False)
+        out = self.dropout(pooled_output)
+        return self.classifier(out)
+                    </code>
+                </div>
+            </div>
+            <!-- Whisper 模型部分 -->
+            <div class="mb-6">
+                <h2 class="text-xl font-semibold text-[var(--text-color)] mb-2">使用Whisper 模型部分</h2>
+                <p class="text-sm text-[var(--text-color)] opacity-80 mb-4">
+                    <strong>功能</strong>：使用 Whisper 模型将语音文件转录为文本，支持后续诈骗检测。<br>
+                    <strong>用法</strong>：`transcribe_audio` 函数接收音频文件路径，返回转录后的文本。支持不同型号（如 `base`、`small`）。<br>
+                </p>
+                <div class="code-block" id="whisper-code">
+                    <button class="copy-btn" onclick="copyCode('whisper-code')">复制</button>
+                    <code>
+import whisper
+import os
+
+# 设置 ffmpeg 路径（确保 Whisper 能找到 ffmpeg）
+os.environ["PATH"] += os.pathsep + r"C:\ProgramData\chocolatey\bin"
+
+# 加载 Whisper 模型并转录
+model = whisper.load_model("base")
+result = model.transcribe(r"D:\anti-fraud\whisper\test_1.m4a")
+print(result['text'])
+
+def transcribe_audio(audio_path, model_name="base"):
+    """
+    Transcribe audio file to text using Whisper
+    Args:
+        audio_path: Path to the audio file
+        model_name: Whisper model size (e.g., 'base', 'small')
+    Returns:
+        str: Transcribed text
+    """
+    try:
+        model = whisper.load_model(model_name)
+        result = model.transcribe(audio_path)
+        return result['text']
+    except Exception as e:
+        print(f"Error transcribing audio {audio_path}: {e}")
+        return None
+                    </code>
+                </div>
+            </div>
+            <!-- 训练函数部分 -->
+            <div class="mb-6">
+                <h2 class="text-xl font-semibold text-[var(--text-color)] mb-2">调用训练函数</h2>
+                <p class="text-sm text-[var(--text-color)] opacity-80 mb-4">
+                    <strong>功能</strong>：提供 BERT 模型的训练、验证和测试函数，用于训练防诈骗分类器。<br>
+                    <strong>用法</strong>：<br>
+                    - `train`：训练模型，保存权重到 `bert_classifier.pt`。<br>
+                    - `evaluate`：评估模型在验证集上的表现，返回损失和准确率。<br>
+                    - `test`：测试模型在测试集上的表现，输出分类报告。<br>
+                </p>
+                <div class="code-block" id="train-code">
+                    <button class="copy-btn" onclick="copyCode('train-code')">复制</button>
+                    <code>
+import torch
+from torch.utils.data import DataLoader
+from torch.optim import Adam
+from torch import nn
+from sklearn.metrics import classification_report
+from tqdm import tqdm
+
+def train(model, train_data, val_data, learning_rate=1e-5, epochs=5, batch_size=4):
+    train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
+    val_loader = DataLoader(val_data, batch_size=batch_size)
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.to(device)
+
+    criterion = nn.CrossEntropyLoss()
+    optimizer = Adam(model.parameters(), lr=learning_rate)
+
+    for epoch in range(epochs):
+        model.train()
+        total_loss, total_acc = 0, 0
+
+        for batch in tqdm(train_loader, desc=f"Training Epoch {epoch+1}"):
+            inputs, labels = batch
+            labels = labels.to(device)
+            mask = inputs['attention_mask'].to(device)
+            input_ids = inputs['input_ids'].squeeze(1).to(device)
+
+            optimizer.zero_grad()
+            output = model(input_ids, mask)
+            loss = criterion(output, labels)
+            loss.backward()
+            optimizer.step()
+
+            total_loss += loss.item()
+            total_acc += (output.argmax(dim=1) == labels).sum().item()
+
+        avg_train_loss = total_loss / len(train_data)
+        avg_train_acc = total_acc / len(train_data)
+
+        val_loss, val_acc = evaluate(model, val_loader, criterion, device)
+
+        print(f'''Epoch {epoch+1} |
+        Train Loss: {avg_train_loss:.3f}, Train Acc: {avg_train_acc:.3f} |
+        Val Loss: {val_loss:.3f}, Val Acc: {val_acc:.3f}''')
+
+    torch.save(model.state_dict(), 'bert_classifier.pt')
+
+def evaluate(model, dataloader, criterion, device):
+    model.eval()
+    total_loss, total_acc = 0, 0
+
+    with torch.no_grad():
+        for batch in dataloader:
+            inputs, labels = batch
+            labels = labels.to(device)
+            mask = inputs['attention_mask'].to(device)
+            input_ids = inputs['input_ids'].squeeze(1).to(device)
+
+            output = model(input_ids, mask)
+            loss = criterion(output, labels)
+
+            total_loss += loss.item()
+            total_acc += (output.argmax(dim=1) == labels).sum().item()
+
+    return total_loss / len(dataloader.dataset), total_acc / len(dataloader.dataset)
+
+def test(model, test_data, label_names=None, batch_size=4):
+    test_loader = DataLoader(test_data, batch_size=batch_size)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.to(device)
+    model.eval()
+
+    all_preds = []
+    all_labels = []
+
+    with torch.no_grad():
+        for batch in test_loader:
+            inputs, labels = batch
+            labels = labels.to(device)
+            mask = inputs['attention_mask'].to(device)
+            input_ids = inputs['input_ids'].squeeze(1).to(device)
+
+            output = model(input_ids, mask)
+            preds = output.argmax(dim=1)
+
+            all_preds.extend(preds.cpu().numpy())
+            all_labels.extend(labels.cpu().numpy())
+
+    print("Test Classification Report:")
+    print(classification_report(all_labels, all_preds, target_names=label_names))
+                    </code>
+                </div>
+            </div>
+            <!-- Fraud Detection Monitor 部分 -->
+            <div class="mb-6">
+                <h2 class="text-xl font-semibold text-[var(--text-color)] mb-2">使用Fraud Detection Monitor</h2>
+                <p class="text-sm text-[var(--text-color)] opacity-80 mb-4">
+                    <strong>功能</strong>：实现实时诈骗检测，结合 BERT 模型和 Whisper 转录结果，监控连续消息中的诈骗模式。<br>
+                    <strong>用法</strong>：<br>
+                    - `FraudDetectionMonitor`：加载训练好的 BERT 模型，监控消息流，检测诈骗模式。<br>
+                    - `detect_fraud`：对单条文本进行诈骗检测。<br>
+                    - `main`：支持批量音频处理或实时文本检测。<br>
+                <div class="code-block" id="monitor-code">
+                    <button class="copy-btn" onclick="copyCode('monitor-code')">复制</button>
+                    <code>
+import torch
+import torch.nn as nn
+from transformers import BertModel, BertTokenizer
+from collections import deque
+
+class FraudDetectionMonitor:
+    def __init__(self, model_path=r'D:\anti-fraud\Bert\bert_classifier.pt', bert_path="D:\\anti-fraud\\bert-base-chinese",
+                 window_size=5, high_confidence_threshold=0.8, required_high_confidence=3):
+        """
+        Initialize the fraud detection monitor
+        Args:
+            model_path: Path to the saved model state dict
+            bert_path: Path to BERT model files
+            window_size: Number of recent messages to consider
+            high_confidence_threshold: Threshold for high confidence fraud detection
+            required_high_confidence: Minimum number of high confidence fraud detections needed
+        """
+        # Load tokenizer and model
+        self.tokenizer = BertTokenizer.from_pretrained(bert_path)
+        self.model = BertClassifier(num_labels=2, model_path=bert_path)
+        self.model.load_state_dict(torch.load(model_path))
+        self.model.eval()
+
+        # Set device
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.model.to(self.device)
+
+        # Settings
+        self.window_size = window_size
+        self.high_confidence_threshold = high_confidence_threshold
+        self.required_high_confidence = required_high_confidence
+
+        # History tracking
+        self.recent_messages = deque(maxlen=window_size)
+        self.recent_predictions = deque(maxlen=window_size)
+        self.recent_confidences = deque(maxlen=window_size)
+
+    def predict(self, text):
+        """Predict if a given text is fraudulent"""
+        # Tokenize input
+        inputs = self.tokenizer(text, padding=True, truncation=True, max_length=128, return_tensors="pt")
+        mask = inputs['attention_mask'].to(self.device)
+        input_ids = inputs['input_ids'].to(self.device)
+
+        # Get prediction
+        with torch.no_grad():
+            output = self.model(input_ids, mask)
+            probabilities = torch.softmax(output, dim=1)
+            prediction = torch.argmax(probabilities, dim=1).item()
+            confidence = probabilities[0][prediction].item()
+
+        return prediction, confidence
+
+    def process_message(self, text):
+        """
+        Process a new message and determine if it's part of a fraud pattern
+        Returns:
+            tuple: (is_fraud, confidence, fraud_alert)
+        """
+        # Get prediction
+        prediction, confidence = self.predict(text)
+
+        # Update history
+        self.recent_messages.append(text)
+        self.recent_predictions.append(prediction)
+        self.recent_confidences.append(confidence)
+
+        # Check for fraud pattern
+        fraud_alert = self._check_fraud_pattern()
+
+        return prediction, confidence, fraud_alert
+
+    def _check_fraud_pattern(self):
+        """Check if recent messages match a suspicious fraud pattern"""
+        # Need at least window_size messages
+        if len(self.recent_predictions) < self.window_size:
+            return False
+
+        # Count fraudulent messages
+        fraud_count = sum(1 for p in self.recent_predictions if p == 1)
+
+        # Count high confidence fraud detections
+        high_confidence_count = sum(1 for p, c in zip(self.recent_predictions, self.recent_confidences)
+                                    if p == 1 and c > self.high_confidence_threshold)
+
+        # Check if pattern matches criteria
+        if fraud_count >= self.window_size and high_confidence_count >= self.required_high_confidence:
+            return True
+        return False
+
+def detect_fraud(text, monitor):
+    """
+    Detect fraud risk in text
+    Args:
+        text: Input text to analyze
+        monitor: FraudDetectionMonitor instance
+    Returns:
+        tuple: (prediction, confidence, fraud_alert)
+    """
+    if not text:
+        return None, None, None
+    return monitor.process_message(text)
+
+def main(audio_files=None):
+    """
+    Main function to process audio files and detect fraud
+    Args:
+        audio_files: List of audio file paths, or None for interactive mode
+    """
+    # Initialize FraudDetectionMonitor
+    try:
+        monitor = FraudDetectionMonitor(
+            model_path=r'D:\anti-fraud\Bert\bert_classifier.pt',
+            bert_path="D:\\anti-fraud\\bert-base-chinese",
+            window_size=3,
+            high_confidence_threshold=0.7,
+            required_high_confidence=3
+        )
+    except Exception as e:
+        print(f"Error initializing FraudDetectionMonitor: {e}")
+        return
+
+    # Process audio files if provided
+    if audio_files:
+        print("===== 音频转录与诈骗检测开始 =====")
+        for audio_path in audio_files:
+            print(f"\n处理音频: {audio_path}")
+            # Transcribe audio
+            text = transcribe_audio(audio_path, model_name="base")
+            if text:
+                print(f"转录文本: {text}")
+                # Detect fraud
+                prediction, confidence, fraud_alert = detect_fraud(text, monitor)
+                result = "诈骗" if prediction == 1 else "正常"
+                print(f"预测: {result} (置信度: {confidence:.4f})")
+                if fraud_alert:
+                    print("\n 警告: 当前通话检测到诈骗!")
+                    print(" 请提高警惕，不要泄露个人信息，不要点击可疑链接，涉及钱财一律不信!\n")
+            else:
+                print("转录失败，跳过诈骗检测")
+            print("-" * 50)
+
+    # Interactive mode
+    print("\n===== 实时文本检测模式 =====")
+    print("输入任意文本进行诈骗检测 (输入'退出'结束)")
+    while True:
+        user_input = input("\n请输入文本: ")
+        if user_input.lower() in ["退出", "exit", "quit"]:
+            break
+        prediction, confidence, fraud_alert = detect_fraud(user_input, monitor)
+        result = "诈骗" if prediction == 1 else "正常"
+        print(f"预测: {result} (置信度: {confidence:.4f})")
+        if fraud_alert:
+            print("\n 警告: 当前通话检测到诈骗!")
+            print(" 请提高警惕，不要泄露个人信息，不要点击可疑链接，涉及钱财一律不信!\n")
+
+if __name__ == "__main__":
+    # 示例音频文件列表
+    audio_files = [
+        r"D:\anti-fraud\whisper\testa.m4a",
+        r"D:\anti-fraud\whisper\testb.m4a",
+        r"D:\anti-fraud\whisper\testc.m4a",
+        r"D:\anti-fraud\whisper\testd.m4a",
+        r"D:\anti-fraud\whisper\teste.m4a"
+    ]
+    main(audio_files)
+                    </code>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const menuButton = document.getElementById('menuButton');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+
+        menuButton.addEventListener('click', () => {
+            dropdownMenu.classList.toggle('show');
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!menuButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+        function copyCode(elementId) {
+            const codeElement = document.getElementById(elementId).querySelector('code');
+            const text = codeElement.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('代码已复制到剪贴板！');
+            }).catch(err => {
+                console.error('复制失败:', err);
+            });
+        }
+    </script>
+</body>
+</html>

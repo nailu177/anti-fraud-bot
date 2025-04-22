@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Anti-Fraud Pic Bot - 防诈骗图片识别</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --bg-color: #f7f7f8;
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --text-color: #1f2a44;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #1a1a1c;
+                --card-bg: rgba(30, 30, 30, 0.8);
+                --text-color: #ffffff;
+            }
+            textarea:focus, input:focus {
+                box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+            }
+            .chatgpt-btn {
+                background: #2d2d2d;
+                color: #ffffff;
+            }
+            .chatgpt-btn:hover {
+                background: #3d3d3d;
+            }
+            .chatgpt-btn.disabled {
+                background: #4b5563;
+                color: #9ca3af;
+                border-color: #4b5563;
+            }
+            .user-message {
+                background: #4b5563;
+            }
+            .bot-message {
+                background: #374151;
+            }
+        }
+        html, body {
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        body {
+            background: var(--bg-color);
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+        .glass {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 448px;
+            max-height: calc(100vh - 2rem);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        .chatgpt-btn {
+            background: #ffffff;
+            color: #000000;
+            border: 1px solid #e5e7eb;
+            transition: all 0.2s ease;
+        }
+        .chatgpt-btn:hover {
+            background: #e5e7eb;
+        }
+        .chatgpt-btn.disabled {
+            background: #d1d5db;
+            color: #6b7280;
+            cursor: not-allowed;
+            border-color: #d1d5db;
+        }
+        .title-enter {
+            animation: fadeIn 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .dropdown-menu {
+            display: none;
+        }
+        .dropdown-menu.show {
+            display: block;
+        }
+        .dropdown-menu a:hover {
+            background: #e5e7eb;
+        }
+        .chat-container {
+            flex: 1;
+            min-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1rem;
+            scrollbar-width: thin;
+            margin-bottom: 1rem;
+            -webkit-overflow-scrolling: touch;
+        }
+        .chat-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .chat-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        .chat-container::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        .chat-container::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        .chat-message {
+            margin-bottom: 1rem;
+            max-width: 70%;
+        }
+        .user-message {
+            margin-left: auto;
+            background: #e5e7eb;
+            color: #1f2a44;
+            padding: 0.5rem 1rem;
+            border-radius: 8px 8px 0 8px;
+        }
+        .bot-message {
+            margin-right: auto;
+            background: #d1d5db;
+            color: #1f2a44;
+            padding: 0.5rem 1rem;
+            border-radius: 8px 8px 8px 0;
+        }
+        .image-preview {
+            max-width: 100%;
+            max-height: 200px;
+            margin-top: 0.5rem;
+            border-radius: 8px;
+        }
+        .title-section {
+            height: 80px;
+            margin-bottom: 1rem;
+        }
+        .input-section {
+            height: 120px;
+        }
+        @media (max-height: 600px) {
+            .chat-container {
+                min-height: 150px;
+            }
+            .title-section {
+                height: 60px;
+            }
+            .input-section {
+                height: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="w-full max-w-4xl flex justify-between items-center mb-8">
+        <a href="index.html" class="text-lg font-semibold text-[var(--text-color)]">Anti-Fraud 🛡</a>
+        <div class="dropdown relative">
+            <button id="menuButton" class="text-[var(--text-color)] focus:outline-none">☰</button>
+            <div id="dropdownMenu" class="dropdown-menu absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
+                <a href="index.html" class="block px-4 py-2 text-sm text-[var(--text-color)] hover:bg-gray-100 dark:hover:bg-gray-700">首页</a>
+                <a href="detect.html" class="block px-4 py-2 text-sm text-[var(--text-color)] hover:bg-gray-100 dark:hover:bg-gray-700">检测</a>
+                <a href="learn.html" class="block px-4 py-2 text-sm text-[var(--text-color)] hover:bg-gray-100 dark:hover:bg-gray-700">了解更多</a>
+            </div>
+        </div>
+    </nav>
+    <div class="glass">
+        <div class="title-section text-center title-enter">
+            <h1 class="text-2xl font-bold text-[var(--text-color)] bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+                Anti-Fraud Pic Bot
+            </h1>
+            <p class="text-sm text-[var(--text-color)] opacity-70 mt-1">
+                上传图片，识别文字并检测诈骗风险
+            </p>
+        </div>
+        <div class="chat-container" id="chatContainer">
+            <div class="chat-message bot-message">
+                欢迎使用 Anti-Fraud Pic Bot！请上传图片或输入文字，我会识别并检测诈骗风险。
+            </div>
+        </div>
+        <div class="input-section flex flex-col space-y-2">
+            <div class="flex space-x-2">
+                <textarea id="chatInput" placeholder="请输入文字或描述"
+                          class="flex-1 p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-[var(--text-color)] focus:ring-2 focus:ring-gray-400 h-12 resize-none"></textarea>
+                <button id="sendButton" class="chatgpt-btn px-4 py-2 rounded-xl disabled:cursor-not-allowed">
+                    发送
+                </button>
+            </div>
+            <div class="flex space-x-2">
+                <input type="file" id="imageInput" accept="image/*" class="flex-1 p-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-[var(--text-color)]">
+                <button id="uploadButton" class="chatgpt-btn px-4 py-2 rounded-xl disabled:cursor-not-allowed">
+                    上传
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const menuButton = document.getElementById('menuButton');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+        const chatInput = document.getElementById('chatInput');
+        const sendButton = document.getElementById('sendButton');
+        const imageInput = document.getElementById('imageInput');
+        const uploadButton = document.getElementById('uploadButton');
+        const chatContainer = document.getElementById('chatContainer');
+
+        // 导航菜单展开/收起
+        menuButton.addEventListener('click', () => {
+            dropdownMenu.classList.toggle('show');
+        });
+
+        // 点击页面其他区域收起菜单
+        document.addEventListener('click', (event) => {
+            if (!menuButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+        // 滚动到底部，仅影响 chat-container
+        function scrollToBottom() {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // 添加消息到聊天区域
+        function addMessage(content, isUser, image = null) {
+            if (chatContainer.children.length > 50) {
+                const oldImg = chatContainer.firstChild.querySelector('img');
+                if (oldImg) URL.revokeObjectURL(oldImg.src);
+                chatContainer.removeChild(chatContainer.firstChild);
+            }
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${isUser ? 'user-message' : 'bot-message'}`;
+            messageDiv.textContent = content;
+            if (image) {
+                const img = document.createElement('img');
+                img.src = image;
+                img.className = 'image-preview';
+                messageDiv.appendChild(img);
+            }
+            chatContainer.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        // 调用后端 API 检测文本
+        async function checkFraud(text) {
+            try {
+                const response = await fetch('http://localhost:5000/detect_text', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text })
+                });
+                if (!response.ok) throw new Error('检测请求失败');
+                const data = await response.json();
+                return `预测: ${data.prediction} (置信度: ${data.confidence.toFixed(4)}) ${data.fraudAlert ? '\n警告: 检测到诈骗风险!' : ''}`;
+            } catch (error) {
+                console.error('Error:', error);
+                return '抱歉，检测服务暂时不可用，请稍后再试！';
+            }
+        }
+
+        // 上传图片并处理
+        async function uploadImage() {
+            const file = imageInput.files[0];
+            if (!file) return;
+
+            const imageUrl = URL.createObjectURL(file);
+            addMessage('已上传图片', true, imageUrl);
+            uploadButton.classList.add('disabled');
+            uploadButton.disabled = true;
+
+            // 准备 FormData
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                const response = await fetch('http://localhost:5000/detect_image', {
+                    method: 'POST',
+                    body: formData
+                });
+                if (!response.ok) throw new Error('图片检测失败');
+                const data = await response.json();
+
+                if (data.error) {
+                    addMessage(data.error, false);
+                } else {
+                    addMessage(`识别文字：${data.transcription}`, false);
+                    const advice = data.fraudAlert || data.prediction === '诈骗'
+                        ? '警告：检测到诈骗风险！请提高警惕，不要泄露个人信息、银行账户或点击可疑链接。如有疑问，请联系官方机构核实。'
+                        : '内容未检测到诈骗风险，请继续保持警惕，避免分享敏感信息。';
+                    addMessage(advice, false);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                addMessage('图片处理失败，请重试！', false);
+            }
+
+            uploadButton.classList.remove('disabled');
+            uploadButton.disabled = false;
+            imageInput.value = '';
+        }
+
+        // 发送文本消息
+        async function sendMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            addMessage(message, true);
+            chatInput.value = '';
+            sendButton.classList.add('disabled');
+            sendButton.disabled = true;
+
+            const result = await checkFraud(message);
+            addMessage(result, false);
+
+            sendButton.classList.remove('disabled');
+            sendButton.disabled = false;
+        }
+
+        // 点击发送按钮
+        sendButton.addEventListener('click', sendMessage);
+
+        // 按回车键发送
+        chatInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // 点击上传按钮
+        uploadButton.addEventListener('click', uploadImage);
+
+        // 输入时动态启用/禁用发送按钮
+        chatInput.addEventListener('input', () => {
+            const hasContent = chatInput.value.trim().length > 0;
+            sendButton.classList.toggle('disabled', !hasContent);
+            sendButton.disabled = !hasContent;
+        });
+
+        // 图片选择时动态启用/禁用上传按钮
+        imageInput.addEventListener('change', () => {
+            const hasFile = imageInput.files.length > 0;
+            uploadButton.classList.toggle('disabled', !hasFile);
+            uploadButton.disabled = !hasFile;
+        });
+
+        // 初始禁用按钮
+        sendButton.classList.add('disabled');
+        sendButton.disabled = true;
+        uploadButton.classList.add('disabled');
+        uploadButton.disabled = true;
+
+        // 防止输入框聚焦时页面滚动（移动端）
+        chatInput.addEventListener('focus', () => {
+            window.scrollTo(0, 0);
+            setTimeout(() => chatContainer.scrollIntoView({ behavior: 'smooth', block: 'end' }), 100);
+        });
+    </script>
+</body>
+</html>
