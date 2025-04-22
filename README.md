@@ -77,18 +77,18 @@ http://localhost:8000/
 
 ### 初始界面
 
-启动应用后，显示欢迎消息：
+启动应用后，显示概览界面：
 
-![初始界面](screenshots/initial-interface.png)
+![初始界面](index.png)
 
-### 图片检测
+### 文本及音频检测
 
-上传图片后，显示识别的文本和劝导信息：
+上传音频后，显示识别的文本和劝导信息：
 
-![图片检测结果](screenshots/image-detection.png)
+![检测结果](detect.png)
 
-### 文本检测
+### 相关介绍
 
-输入文本后，显示检测结果：
+关于anti-fraud bot的更多细节：
 
-![文本检测结果](screenshots/text-detection.png)
+![介绍界面](learn.png)
