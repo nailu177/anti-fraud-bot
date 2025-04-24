@@ -7,164 +7,261 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
-            --bg-color: #f7f7f8;
-            --card-bg: rgba(255, 255, 255, 0.8);
-            --text-color: #1f2a44;
+            --bg-color: #0a0a23;
+            --text-color: #ffffff;
+            --accent-color: #00d4ff;
         }
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg-color: #1a1a1c;
-                --card-bg: rgba(30, 30, 30, 0.8);
-                --text-color: #ffffff;
-            }
-            input:focus, textarea:focus {
-                box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
-            }
-            .chatgpt-btn {
-                background: #2d2d2d;
-                color: #ffffff;
-            }
-            .chatgpt-btn:hover {
-                background: #3d3d3d;
-            }
-            .tab {
-                background: #374151;
-                color: #ffffff;
-            }
-            .tab:hover {
-                background: #4b5563;
-            }
-            .tab.active {
-                background: #ffffff;
-                color: #1f2a44;
-            }
-        }
+
         body {
-            background: var(--bg-color);
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--bg-color), #1a1a4b);
+            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
         }
-        .glass {
-            background: var(--card-bg);
+
+        /* 导航栏 */
+        nav {
+            background: rgba(10, 10, 35, 0.95);
             backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            position: absolute;
+            top: 0;
+            z-index: 1000;
+            width: 100%;
         }
-        .chatgpt-btn {
-            background: #ffffff;
-            color: #000000;
-            border: 1px solid #e5e7eb;
-            transition: all 0.2s ease;
+
+        nav a {
+            transition: color 0.3s ease;
         }
-        .chatgpt-btn:hover {
-            background: #e5e7eb;
+
+        nav a:hover {
+            color: var(--accent-color);
         }
-        .chatgpt-btn.disabled {
-            background: #d1d5db;
-            color: #6b7280;
-            cursor: not-allowed;
-            border-color: #d1d5db;
-        }
-        .tab {
-            transition: all 0.2s ease;
-            background: #e5e7eb;
-            color: #1f2a44;
-        }
-        .tab:hover {
-            background: #d1d5db;
-        }
-        .tab.active {
-            background: #1f2a44;
-            color: #ffffff;
-        }
-        .result-enter {
-            animation: slideIn 0.3s ease-out;
-        }
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .toast {
-            transition: all 0.3s ease;
-        }
-        .title-enter {
-            animation: fadeIn 0.5s ease-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+
+        /* 下拉菜单 */
         .dropdown-menu {
             display: none;
+            background: rgba(10, 10, 35, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.5rem;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
         }
+
         .dropdown-menu.show {
             display: block;
         }
-        .dropdown-menu a:hover {
-            background: #e5e7eb;
-        }
-        .file-count {
-            margin-top: 0.5rem;
-            font-size: 0.875rem;
+
+        .dropdown-menu a {
             color: var(--text-color);
-            opacity: 0.8;
+            padding: 0.75rem 1rem;
+            display: block;
+            transition: background 0.2s ease;
+        }
+
+        .dropdown-menu a:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* 对话框样式 */
+        .chat-container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            width: 100%;
+            max-width: 800px;
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: transparent;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.75rem 1rem;
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .chat-bubble {
+            max-width: 70%;
+            padding: 0.5rem 1rem;
+            margin: 0.5rem 0;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            line-height: 1.4;
+        }
+
+        .chat-bubble.user {
+            background: rgba(0, 212, 255, 0.2);
+            margin-left: auto;
+        }
+
+        .chat-bubble.bot {
+            background: rgba(255, 255, 255, 0.1);
+            margin-right: auto;
+        }
+
+        .chat-input-container {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            gap: 0.5rem;
+        }
+
+        .audio-input-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .audio-input {
+            display: none;
+        }
+
+        .audio-label {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 9999px;
+            padding: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+        }
+
+        .audio-label:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .chat-input {
+            background: transparent;
+            color: var(--text-color);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            outline: none;
+            flex: 1;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            border-radius: 9999px;
+            transition: border-color 0.3s ease;
+        }
+
+        .chat-input:focus {
+            border-color: var(--accent-color);
+        }
+
+        .chat-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 50%;
+            width: 2rem;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+        }
+
+        .chat-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .chat-btn.disabled {
+            background: rgba(255, 255, 255, 0.05);
+            cursor: not-allowed;
+        }
+
+        /* 加载动画 */
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Toast 提示 */
+        .toast {
+            transition: all 0.3s ease;
+        }
+
+        /* 响应式 */
+        @media (max-width: 640px) {
+            .chat-container {
+                max-width: 100%;
+                height: 400px;
+            }
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center p-4">
+<body>
     <!-- 导航 -->
-    <nav class="w-full max-w-4xl flex justify-between items-center mb-8">
+    <nav class="max-w-full flex justify-between items-center">
         <a href="index.html" class="text-lg font-semibold text-[var(--text-color)]">Anti-Fraud 🛡</a>
         <div class="dropdown relative">
-            <button id="menuButton" class="text-[var(--text-color)] focus:outline-none">☰</button>
-            <div id="dropdownMenu" class="dropdown-menu absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
-                <a href="index.html" class="block px-4 py-2 text-sm text-[var(--text-color)] hover:bg-gray-100 dark:hover:bg-gray-700">首页</a>
-                <a href="detect.html" class="block px-4 py-2 text-sm text-[var(--text-color)] hover:bg-gray-100 dark:hover:bg-gray-700">检测</a>
-                <a href="learn.html" class="block px-4 py-2 text-sm text-[var(--text-color)] hover:bg-gray-100 dark:hover:bg-gray-700">了解更多</a>
+            <button id="menuButton" class="text-[var(--text-color)] focus:outline-none text-2xl">☰</button>
+            <div id="dropdownMenu" class="dropdown-menu absolute right-0 mt-2 w-48">
+                <a href="index.html" class="block text-sm">首页</a>
+                <a href="detect.html" class="block text-sm">检测</a>
+                <a href="learn.html" class="block text-sm">了解更多</a>
             </div>
         </div>
     </nav>
-    <!-- 内容 -->
-    <div class="glass p-6 rounded-3xl shadow-lg w-full max-w-md">
-        <div class="text-center mb-6 title-enter">
-            <h1 class="text-2xl font-bold text-[var(--text-color)] bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-                Anti-Fraud 防诈骗bot
-            </h1>
-            <p class="text-sm text-[var(--text-color)] opacity-70 mt-1">
-                你的防诈有力助手 守卫您的财产安全
-            </p>
+
+    <!-- 对话框 -->
+    <div class="chat-container">
+        <div class="chat-header">
+            Anti-Fraud Bot
         </div>
-        <div class="flex space-x-2 mb-4">
-            <button class="tab flex-1 p-2 rounded-lg text-[var(--text-color)] active" data-tab="audio">音频</button>
-            <button class="tab flex-1 p-2 rounded-lg text-[var(--text-color)]" data-tab="text">文本</button>
+        <div class="chat-messages" id="chatArea">
+            <div class="chat-bubble bot">
+                <p>请输入可疑文本或点击左侧上传音频，我会帮你检测是否有诈骗风险！</p>
+            </div>
         </div>
-        <div id="audioInputArea" class="mb-6">
-            <label class="block text-sm font-medium text-[var(--text-color)] opacity-80 mb-2">上传音频（可多选）</label>
-            <input type="file" id="audioInput" accept="audio/*" multiple
-                   class="w-full p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-[var(--text-color)] focus:ring-2 focus:ring-gray-400">
-            <p id="fileCount" class="file-count hidden"></p>
+        <div class="chat-input-container">
+            <div class="audio-input-container">
+                <input type="file" id="audioInput" accept="audio/*" multiple class="audio-input">
+                <label for="audioInput" class="audio-label">
+                    <svg class="w-5 h-5" fill="none" stroke="var(--text-color)" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 8v-4a2 2 0 00-2-2h-4a2 2 0 00-2 2v4m6 0h-6"></path>
+                    </svg>
+                </label>
+            </div>
+            <textarea id="textInput" placeholder="" class="chat-input"></textarea>
+            <button id="textDetectBtn" class="chat-btn">
+                <svg id="textDetectIcon" class="w-5 h-5" fill="none" stroke="var(--text-color)" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+                <svg id="textLoadingSpinner" class="hidden w-5 h-5 spinner" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="var(--text-color)" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="var(--text-color)" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </button>
         </div>
-        <div id="textInputArea" class="mb-6 hidden">
-            <label class="block text-sm font-medium text-[var(--text-color)] opacity-80 mb-2">输入文本</label>
-            <textarea id="textInput" placeholder="请输入聊天记录或可疑文本"
-                      class="w-full p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-[var(--text-color)] focus:ring-2 focus:ring-gray-400 h-24 resize-none"></textarea>
-        </div>
-        <button id="detectButton"
-                class="w-full p-3 rounded-full chatgpt-btn disabled:cursor-not-allowed flex items-center justify-center">
-            <span id="buttonText">开始检测</span>
-            <svg id="loadingSpinner" class="hidden animate-spin h-5 w-5 ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-        </button>
-        <div id="progress" class="hidden mt-4 text-sm text-[var(--text-color)] opacity-80"></div>
-        <div id="results" class="mt-6 space-y-3"></div>
-        <div id="toast" class="hidden fixed bottom-6 right-6 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg toast"></div>
     </div>
+
+    <!-- Toast 提示 -->
+    <div id="toast" class="hidden fixed bottom-6 right-6 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg toast"></div>
 
     <script>
         const menuButton = document.getElementById('menuButton');
         const dropdownMenu = document.getElementById('dropdownMenu');
         const audioInput = document.getElementById('audioInput');
-        const fileCount = document.getElementById('fileCount');
 
         // 导航菜单展开/收起
         menuButton.addEventListener('click', () => {
@@ -180,33 +277,16 @@
 
         // 监听音频文件选择变化
         audioInput.addEventListener('change', () => {
-            const fileCountText = audioInput.files.length > 0
-                ? `已选取 ${audioInput.files.length} 个文件`
-                : '';
-            fileCount.textContent = fileCountText;
-            fileCount.classList.toggle('hidden', audioInput.files.length === 0);
-        });
-
-        // 切换输入选项卡
-        const tabs = document.querySelectorAll('.tab');
-        const inputAreas = {
-            audio: document.getElementById('audioInputArea'),
-            text: document.getElementById('textInputArea')
-        };
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                tabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                Object.values(inputAreas).forEach(area => area.classList.add('hidden'));
-                inputAreas[tab.dataset.tab].classList.remove('hidden');
-            });
+            if (audioInput.files.length > 0) {
+                handleAudioInput();
+            }
         });
 
         // 检测函数
         async function detect(input, type) {
             if (type === 'text') {
                 try {
-                    const response = await fetch('http://localhost:5000/detect_text', {
+                    const response = await fetch('/detect_text', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ text: input })
@@ -221,7 +301,7 @@
                 const formData = new FormData();
                 formData.append('audio', input);
                 try {
-                    const response = await fetch('http://localhost:5000/detect', {
+                    const response = await fetch('/detect', {
                         method: 'POST',
                         body: formData
                     });
@@ -246,68 +326,103 @@
             }, 3000);
         }
 
-        // 检测按钮点击事件
-        document.getElementById('detectButton').addEventListener('click', async () => {
-            const audioInput = document.getElementById('audioInput');
-            const textInput = document.getElementById('textInput');
-            const resultsDiv = document.getElementById('results');
-            const detectButton = document.getElementById('detectButton');
-            const buttonText = document.getElementById('buttonText');
-            const loadingSpinner = document.getElementById('loadingSpinner');
-            const progressDiv = document.getElementById('progress');
-            const activeTab = document.querySelector('.tab.active').dataset.tab;
+        // 文本检测（对话形式）
+        const textDetectBtn = document.getElementById('textDetectBtn');
+        const textInput = document.getElementById('textInput');
+        const chatArea = document.getElementById('chatArea');
+        const textDetectIcon = document.getElementById('textDetectIcon');
+        const textLoadingSpinner = document.getElementById('textLoadingSpinner');
 
-            let inputs = [];
-            if (activeTab === 'audio' && audioInput.files.length > 0) {
-                inputs = Array.from(audioInput.files).map(file => ({ input: file, type: 'audio' }));
-            } else if (activeTab === 'text' && textInput.value.trim()) {
-                inputs = [{ input: textInput.value.trim(), type: 'text' }];
-            } else {
+        textDetectBtn.addEventListener('click', async () => {
+            const inputText = textInput.value.trim();
+            if (!inputText) {
                 showToast('请提供输入内容');
                 return;
             }
 
-            detectButton.disabled = true;
-            detectButton.classList.add('disabled');
-            buttonText.textContent = '检测中...';
-            loadingSpinner.classList.remove('hidden');
-            resultsDiv.innerHTML = '';
-            progressDiv.classList.remove('hidden');
-            progressDiv.textContent = `处理中: 0/${inputs.length}`;
+            // 添加用户输入气泡
+            const userBubble = document.createElement('div');
+            userBubble.className = 'chat-bubble user';
+            userBubble.innerHTML = `<p>${inputText}</p>`;
+            chatArea.appendChild(userBubble);
+            chatArea.scrollTop = chatArea.scrollHeight;
+            textInput.value = '';
 
+            // 检测中状态
+            textDetectBtn.disabled = true;
+            textDetectBtn.classList.add('disabled');
+            textDetectIcon.classList.add('hidden');
+            textLoadingSpinner.classList.remove('hidden');
+
+            const result = await detect(inputText, 'text');
+
+            // 添加检测结果气泡
+            const botBubble = document.createElement('div');
+            botBubble.className = 'chat-bubble bot';
+            if (result.error) {
+                botBubble.innerHTML = `<p class="text-red-500 text-sm">${result.error}</p>`;
+            } else {
+                botBubble.innerHTML = `
+                    <p class="text-sm font-medium">预测: ${result.prediction || '未知'}</p>
+                    <p class="text-sm opacity-80">置信度: ${result.confidence ? result.confidence.toFixed(4) : '未知'}</p>
+                    <p class="text-sm"><span class="font-medium">提示: </span><span class="${result.fraudAlert ? 'text-red-500' : 'text-green-500'}">${result.fraudAlert ? '检测到诈骗！请提高警惕！政府反诈骗专线为96110，请及时制止当前对话，求助警方' : '无诈骗风险，请保护好个人信息'}</span></p>
+                `;
+            }
+            chatArea.appendChild(botBubble);
+            chatArea.scrollTop = chatArea.scrollHeight;
+
+            textDetectBtn.disabled = false;
+            textDetectBtn.classList.remove('disabled');
+            textDetectIcon.classList.remove('hidden');
+            textLoadingSpinner.classList.add('hidden');
+        });
+
+        // 音频检测
+        async function handleAudioInput() {
+            const audioInput = document.getElementById('audioInput');
+            if (audioInput.files.length === 0) {
+                showToast('请提供输入内容');
+                return;
+            }
+
+            const inputs = Array.from(audioInput.files).map(file => ({ input: file, type: 'audio' }));
             const promises = inputs.map(async ({ input, type }) => {
+                // 添加音频文件气泡
+                const userBubble = document.createElement('div');
+                userBubble.className = 'chat-bubble user';
+                userBubble.innerHTML = `<p>音频文件: ${input.name}</p>`;
+                chatArea.appendChild(userBubble);
+                chatArea.scrollTop = chatArea.scrollHeight;
+
                 const result = await detect(input, type);
                 return { input, type, result };
             });
             const results = await Promise.all(promises);
 
-            results.forEach(({ input, type, result }, index) => {
-                progressDiv.textContent = `处理中: ${index + 1}/${inputs.length}`;
-                const resultDiv = document.createElement('div');
-                resultDiv.className = 'p-3 bg-white dark:bg-gray-800 rounded-lg result-enter';
+            results.forEach(({ input, type, result }) => {
+                const botBubble = document.createElement('div');
+                botBubble.className = 'chat-bubble bot';
                 if (result.error) {
-                    resultDiv.innerHTML = `
-                        <p class="text-sm font-medium text-[var(--text-color)]">${type === 'text' ? '文本' : '文件'}: ${type === 'text' ? input.slice(0, 20) + '...' : input.name}</p>
+                    botBubble.innerHTML = `
+                        <p class="text-sm font-medium">文件: ${input.name}</p>
                         <p class="text-red-500 text-sm">${result.error}</p>
                     `;
                 } else {
-                    resultDiv.innerHTML = `
-                        <p class="text-sm font-medium text-[var(--text-color)]">${type === 'text' ? '文件' : '文件'}: ${type === 'text' ? input.slice(0, 20) + '...' : input.name}</p>
-                        ${type === 'audio' ? `<p class="text-sm text-[var(--text-color)] opacity-80">转录: ${result.transcription || '无转录'}</p>` : ''}
-                        <p class="text-sm text-[var(--text-color)] opacity-80">预测: ${result.prediction || '未知'}</p>
-                        <p class="text-sm text-[var(--text-color)] opacity-80">置信度: ${result.confidence ? result.confidence.toFixed(4) : '未知'}</p>
-                        <p class="text-sm"><span class="font-medium text-[var(--text-color)]">警告: </span><span class="${result.fraudAlert ? 'text-red-500' : 'text-green-500'}">${result.fraudAlert ? '检测到诈骗！请提高警惕！' : '无诈骗风险'}</span></p>
+                    botBubble.innerHTML = `
+                        <p class="text-sm font-medium">文件: ${input.name}</p>
+                        <p class="text-sm opacity-80">转录: ${result.transcription || '无转录'}</p>
+                        <p class="text-sm opacity-80">预测: ${result.prediction || '未知'}</p>
+                        <p class="text-sm opacity-80">置信度: ${result.confidence ? result.confidence.toFixed(4) : '未知'}</p>
+                        <p class="text-sm"><span class="font-medium">提示: </span><span class="${result.fraudAlert ? 'text-red-500' : 'text-green-500'}">${result.fraudAlert ? '检测到诈骗！请提高警惕！政府反诈骗专线为96110，请及时制止当前对话，求助警方' : '无诈骗风险，请保护好个人信息'}</span></p>
                     `;
                 }
-                resultsDiv.appendChild(resultDiv);
+                chatArea.appendChild(botBubble);
+                chatArea.scrollTop = chatArea.scrollHeight;
             });
 
-            detectButton.disabled = false;
-            detectButton.classList.remove('disabled');
-            buttonText.textContent = '开始检测';
-            loadingSpinner.classList.add('hidden');
-            progressDiv.classList.add('hidden');
-        });
+            // 清空文件输入
+            audioInput.value = '';
+        }
     </script>
 </body>
 </html>
