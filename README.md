@@ -52,17 +52,8 @@ backend
 ```bash
 python flask_app.py
 ```
-/*
-### 2. 启动前端服务(不再需要)
 
-在项目根目录运行本地服务器：
-
-```bash
-python -m http.server 8000
-```
-*/
-
-### 3. 访问应用
+### 2. 访问应用
 
 打开浏览器，访问：
 
