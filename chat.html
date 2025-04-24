@@ -7,45 +7,20 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
-            --bg-color: #f7f7f8;
-            --card-bg: rgba(255, 255, 255, 0.8);
-            --text-color: #1f2a44;
+            --bg-color: #0a0a23;
+            --text-color: #ffffff;
+            --accent-color: #00d4ff;
         }
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg-color: #1a1a1c;
-                --card-bg: rgba(30, 30, 30, 0.8);
-                --text-color: #ffffff;
-            }
-            textarea:focus, input:focus {
-                box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
-            }
-            .chatgpt-btn {
-                background: #2d2d2d;
-                color: #ffffff;
-            }
-            .chatgpt-btn:hover {
-                background: #3d3d3d;
-            }
-            .chatgpt-btn.disabled {
-                background: #4b5563;
-                color: #9ca3af;
-                border-color: #4b5563;
-            }
-            .user-message {
-                background: #4b5563;
-            }
-            .bot-message {
-                background: #374151;
-            }
-        }
+
         html, body {
             height: 100vh;
             margin: 0;
             overflow: hidden;
         }
+
         body {
-            background: var(--bg-color);
+            background: linear-gradient(135deg, var(--bg-color), #1a1a4b);
+            color: var(--text-color);
             font-family: -apple-system, BlinkMacSystemFont, sans-serif;
             display: flex;
             flex-direction: column;
@@ -53,8 +28,55 @@
             padding: 1rem;
             box-sizing: border-box;
         }
+
+        /* 导航栏 */
+        nav {
+            background: rgba(10, 10, 35, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 1.5rem;
+            position: absolute;
+            top: 0;
+            z-index: 1000;
+            width: 100%;
+        }
+
+        nav a {
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover {
+            color: var(--accent-color);
+        }
+
+        /* 下拉菜单 */
+        .dropdown-menu {
+            display: none;
+            background: rgba(10, 10, 35, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.5rem;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            z-index: 50;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-menu a {
+            color: var(--text-color);
+            padding: 0.75rem 1rem;
+            display: block;
+            transition: background 0.2s ease;
+        }
+
+        .dropdown-menu a:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* 卡片样式 */
         .glass {
-            background: var(--card-bg);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             display: flex;
@@ -66,94 +88,122 @@
             padding: 1.5rem;
             box-sizing: border-box;
             overflow: hidden;
+            z-index: 1; /* 确保低于导航栏 */
         }
+
         .chatgpt-btn {
-            background: #ffffff;
-            color: #000000;
-            border: 1px solid #e5e7eb;
-            transition: all 0.2s ease;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: background 0.3s ease;
         }
+
         .chatgpt-btn:hover {
-            background: #e5e7eb;
+            background: rgba(255, 255, 255, 0.2);
         }
+
         .chatgpt-btn.disabled {
-            background: #d1d5db;
-            color: #6b7280;
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.5);
+            border-color: rgba(255, 255, 255, 0.1);
             cursor: not-allowed;
-            border-color: #d1d5db;
         }
+
         .title-enter {
             animation: fadeIn 0.5s ease-out;
         }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .dropdown-menu {
-            display: none;
-        }
-        .dropdown-menu.show {
-            display: block;
-        }
-        .dropdown-menu a:hover {
-            background: #e5e7eb;
-        }
+
         .chat-container {
             flex: 1;
             min-height: 200px;
             overflow-y: auto;
-            border: 1px solid #e5e7eb;
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 8px;
             padding: 1rem;
             scrollbar-width: thin;
             margin-bottom: 1rem;
             -webkit-overflow-scrolling: touch;
         }
+
         .chat-container::-webkit-scrollbar {
             width: 8px;
         }
+
         .chat-container::-webkit-scrollbar-track {
-            background: #f1f1f1;
+            background: rgba(255, 255, 255, 0.05);
             border-radius: 4px;
         }
+
         .chat-container::-webkit-scrollbar-thumb {
-            background: #888;
+            background: rgba(255, 255, 255, 0.3);
             border-radius: 4px;
         }
+
         .chat-container::-webkit-scrollbar-thumb:hover {
-            background: #555;
+            background: rgba(255, 255, 255, 0.5);
         }
+
         .chat-message {
             margin-bottom: 1rem;
-            max-width: 70%;
+            max-width: 85%; /* 稍微增加宽度以适应图片 */
         }
+
         .user-message {
             margin-left: auto;
-            background: #e5e7eb;
-            color: #1f2a44;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
             padding: 0.5rem 1rem;
             border-radius: 8px 8px 0 8px;
         }
+
         .bot-message {
             margin-right: auto;
-            background: #d1d5db;
-            color: #1f2a44;
+            background: rgba(255, 255, 255, 0.15);
+            color: var(--text-color);
             padding: 0.5rem 1rem;
             border-radius: 8px 8px 8px 0;
         }
-        .image-preview {
-            max-width: 100%;
-            max-height: 200px;
-            margin-top: 0.5rem;
-            border-radius: 8px;
+
+        .message-content {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap; /* 允许图片和文字换行 */
+            gap: 0.5rem; /* 文字和图片之间的间距 */
         }
+
+        .inline-image {
+            max-width: 100px; /* 缩小图片尺寸以适应对话框 */
+            max-height: 100px;
+            border-radius: 4px;
+            vertical-align: middle; /* 确保图片与文字垂直居中 */
+        }
+
+        textarea, input[type="file"] {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        textarea:focus, input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2);
+        }
+
         .title-section {
             height: 80px;
             margin-bottom: 1rem;
         }
+
         .input-section {
             height: 120px;
         }
+
         @media (max-height: 600px) {
             .chat-container {
                 min-height: 150px;
@@ -165,44 +215,56 @@
                 height: 100px;
             }
         }
+
+        @media (max-width: 768px) {
+            .chat-message {
+                max-width: 90%; /* 小屏幕上增加消息宽度 */
+            }
+            .inline-image {
+                max-width: 80px; /* 小屏幕上进一步缩小图片 */
+                max-height: 80px;
+            }
+        }
     </style>
 </head>
 <body>
-    <nav class="w-full max-w-4xl flex justify-between items-center mb-8">
+    <nav class="w-full flex justify-between items-center mb-8">
         <a href="index.html" class="text-lg font-semibold text-[var(--text-color)]">Anti-Fraud 🛡</a>
         <div class="dropdown relative">
-            <button id="menuButton" class="text-[var(--text-color)] focus:outline-none">☰</button>
-            <div id="dropdownMenu" class="dropdown-menu absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
-                <a href="index.html" class="block px-4 py-2 text-sm text-[var(--text-color)] hover:bg-gray-100 dark:hover:bg-gray-700">首页</a>
-                <a href="detect.html" class="block px-4 py-2 text-sm text-[var(--text-color)] hover:bg-gray-100 dark:hover:bg-gray-700">检测</a>
-                <a href="learn.html" class="block px-4 py-2 text-sm text-[var(--text-color)] hover:bg-gray-100 dark:hover:bg-gray-700">了解更多</a>
+            <button id="menuButton" class="text-[var(--text-color)] focus:outline-none text-2xl">☰</button>
+            <div id="dropdownMenu" class="dropdown-menu absolute right-0 mt-2 w-48">
+                <a href="index.html" class="block text-sm">首页</a>
+                <a href="detect.html" class="block text-sm">检测</a>
+                <a href="learn.html" class="block text-sm">了解更多</a>
             </div>
         </div>
     </nav>
-    <div class="glass">
+    <div class="glass mt-20">
         <div class="title-section text-center title-enter">
-            <h1 class="text-2xl font-bold text-[var(--text-color)] bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-                Anti-Fraud Pic Bot
+            <h1 class="text-2xl font-bold text-[var(--text-color)] bg-gradient-to-r from-[var(--accent-color)] to-white bg-clip-text text-transparent">
+                Anti-Fraud Pic Bot - beta
             </h1>
-            <p class="text-sm text-[var(--text-color)] opacity-70 mt-1">
+            <p class="text-sm opacity-70 mt-1">
                 上传图片，识别文字并检测诈骗风险
             </p>
         </div>
         <div class="chat-container" id="chatContainer">
             <div class="chat-message bot-message">
-                欢迎使用 Anti-Fraud Pic Bot！请上传图片或输入文字，我会识别并检测诈骗风险。
+                <div class="message-content">
+                    <span>欢迎使用 Anti-Fraud Pic Bot！请上传图片或输入文字，我会识别并检测诈骗风险。</span>
+                </div>
             </div>
         </div>
         <div class="input-section flex flex-col space-y-2">
             <div class="flex space-x-2">
                 <textarea id="chatInput" placeholder="请输入文字或描述"
-                          class="flex-1 p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-[var(--text-color)] focus:ring-2 focus:ring-gray-400 h-12 resize-none"></textarea>
+                          class="flex-1 p-3 rounded-xl text-sm h-12 resize-none"></textarea>
                 <button id="sendButton" class="chatgpt-btn px-4 py-2 rounded-xl disabled:cursor-not-allowed">
                     发送
                 </button>
             </div>
             <div class="flex space-x-2">
-                <input type="file" id="imageInput" accept="image/*" class="flex-1 p-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-[var(--text-color)]">
+                <input type="file" id="imageInput" accept="image/*" class="flex-1 p-2 rounded-xl text-sm">
                 <button id="uploadButton" class="chatgpt-btn px-4 py-2 rounded-xl disabled:cursor-not-allowed">
                     上传
                 </button>
@@ -245,13 +307,22 @@
             }
             const messageDiv = document.createElement('div');
             messageDiv.className = `chat-message ${isUser ? 'user-message' : 'bot-message'}`;
-            messageDiv.textContent = content;
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+
+            const textSpan = document.createElement('span');
+            textSpan.textContent = content;
+            contentDiv.appendChild(textSpan);
+
             if (image) {
                 const img = document.createElement('img');
                 img.src = image;
-                img.className = 'image-preview';
-                messageDiv.appendChild(img);
+                img.className = 'inline-image';
+                contentDiv.appendChild(img);
             }
+
+            messageDiv.appendChild(contentDiv);
             chatContainer.appendChild(messageDiv);
             scrollToBottom();
         }
@@ -259,7 +330,7 @@
         // 调用后端 API 检测文本
         async function checkFraud(text) {
             try {
-                const response = await fetch('http://localhost:5000/detect_text', {
+                const response = await fetch('/detect_text', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ text })
@@ -288,7 +359,7 @@
             formData.append('image', file);
 
             try {
-                const response = await fetch('http://localhost:5000/detect_image', {
+                const response = await fetch('/detect_image', {
                     method: 'POST',
                     body: formData
                 });
