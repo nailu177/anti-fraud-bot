@@ -52,21 +52,22 @@ backend
 ```bash
 python flask_app.py
 ```
-
-### 2. 启动前端服务
+/*
+### 2. 启动前端服务(不再需要)
 
 在项目根目录运行本地服务器：
 
 ```bash
 python -m http.server 8000
 ```
+*/
 
 ### 3. 访问应用
 
 打开浏览器，访问：
 
 ```bash
-http://localhost:8000/
+http://localhost:8080/
 ```
 
 即可开始使用本软件。
@@ -78,6 +79,7 @@ http://localhost:8000/
 ### 初始界面
 
 启动应用后，显示概览界面：
+
 
 ![初始界面](index.png)
 
