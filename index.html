@@ -7,140 +7,535 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
-            --bg-color: #f7f7f8;
-            --text-color: #1f2a44;
+            --bg-color: #0a0a23;
+            --text-color: #ffffff;
+            --accent-color: #00d4ff;
         }
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg-color: #1a1a1c;
-                --text-color: #ffffff;
-            }
-            .chatgpt-btn {
-                background: #2d2d2d;
-                color: #ffffff;
-            }
-            .chatgpt-btn:hover {
-                background: #3d3d3d;
-            }
-            .text-btn:hover {
-                color: #4b5563;
-            }
-        }
+
         body {
-            background: var(--bg-color);
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--bg-color), #1a1a4b);
+            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
         }
+
+        /* 粒子背景 */
+        #particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        /* 导航栏 */
+        nav {
+            background: rgba(10, 10, 35, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            width: 100%;
+        }
+
+        nav a {
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover {
+            color: var(--accent-color);
+        }
+
+        /* 按钮 */
         .chatgpt-btn {
-            background: #ffffff;
-            color: #000000;
-            border: 1px solid #e5e7eb;
-            transition: all 0.2s ease;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-color);
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
+
         .chatgpt-btn:hover {
-            background: #e5e7eb;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
         }
+
         .text-btn {
-            color: #000000;
-            transition: color 0.2s ease;
+            color: var(--text-color);
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
+
         .text-btn:hover {
-            color: #6b7280;
+            color: var(--accent-color);
         }
+
+        /* 标题动画 */
         .title-enter {
             animation: fadeIn 0.5s ease-out;
         }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        /* 下拉菜单 */
         .dropdown-menu {
             display: none;
+            background: rgba(10, 10, 35, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.5rem;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
         }
+
         .dropdown-menu.show {
             display: block;
         }
+
+        .dropdown-menu a {
+            color: var(--text-color);
+            padding: 0.75rem 1rem;
+            display: block;
+            transition: background 0.2s ease;
+        }
+
         .dropdown-menu a:hover {
-            background: #e5e7eb;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* 卡片样式 */
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 212, 255, 0.2);
+        }
+
+        /* 检测输入框样式 */
+        .detect-container {
+            max-width: 48rem;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 9999px;
+            padding: 0.5rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .detect-container:focus-within {
+            border-color: var(--accent-color);
+        }
+
+        .detect-input {
+            background: transparent;
+            color: var(--text-color);
+            border: none;
+            outline: none;
+            flex: 1;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+        }
+
+        .detect-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 50%;
+            width: 2.5rem;
+            height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+        }
+
+        .detect-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .detect-btn.disabled {
+            background: rgba(255, 255, 255, 0.05);
+            cursor: not-allowed;
+        }
+
+        .detect-result {
+            margin-top: 1rem;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* FAQ卡片 */
+        .faq-item {
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .faq-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .faq-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .faq-content.show {
+            max-height: 200px;
+        }
+
+        /* 返回顶部按钮 */
+        #backToTop {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            padding: 0.75rem;
+            border-radius: 50%;
+            display: none;
+            transition: opacity 0.3s ease;
+        }
+
+        #backToTop:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Toast 提示 */
+        .toast {
+            transition: all 0.3s ease;
+        }
+
+        /* 加载动画 */
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* 响应式 */
+        @media (max-width: 640px) {
+            .content h1 {
+                font-size: 2.5rem;
+            }
+            .chatgpt-btn {
+                padding: 0.5rem 1rem;
+            }
+            .detect-container {
+                max-width: 100%;
+            }
+        }
+
+        @media (min-width: 1536px) {
+            .content {
+                max-width: 80rem;
+            }
         }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center p-4">
+    <!-- 粒子背景 -->
+    <canvas id="particles"></canvas>
+
     <!-- 导航 -->
-    <nav class="w-full max-w-4xl flex justify-between items-center mb-8">
+    <nav class="max-w-full flex justify-between items-center mb-8">
         <a href="index.html" class="text-lg font-semibold text-[var(--text-color)]">Anti-Fraud 🛡</a>
         <div class="flex items-center space-x-4">
             <div class="dropdown relative">
-                <button id="menuButton" class="text-[var(--text-color)] focus:outline-none">☰</button>
-                <div id="dropdownMenu" class="dropdown-menu absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
-                    <a href="index.html" class="block px-4 py-2 text-sm text-[var(--text-color)] hover:bg-gray-100 dark:hover:bg-gray-700">首页</a>
-                    <a href="detect.html" class="block px-4 py-2 text-sm text-[var(--text-color)] hover:bg-gray-100 dark:hover:bg-gray-700">检测</a>
-                    <a href="learn.html" class="block px-4 py-2 text-sm text-[var(--text-color)] hover:bg-gray-100 dark:hover:bg-gray-700">了解更多</a>
+                <button id="menuButton" class="text-[var(--text-color)] focus:outline-none text-2xl">☰</button>
+                <div id="dropdownMenu" class="dropdown-menu absolute right-0 mt-2 w-48">
+                    <a href="index.html" class="block text-sm">首页</a>
+                    <a href="detect.html" class="block text-sm">检测</a>
+                    <a href="learn.html" class="block text-sm">了解更多</a>
                 </div>
             </div>
-            <a href="login.html" class="text-sm text-[var(--text-color)] hover:underline">Log in</a>
+            <a href="login.html" class="text-sm text-[var(--text-color)] hover:text-[var(--accent-color)]">Log in</a>
         </div>
     </nav>
+
     <!-- 内容 -->
-    <div class="text-center flex-1 flex flex-col justify-center">
+    <div class="content text-center flex-1 flex flex-col justify-center">
         <h1 class="text-4xl md:text-5xl font-bold text-[var(--text-color)] mb-6 title-enter">
             为您介绍 Anti-Fraud Bot
         </h1>
         <div class="text-sm text-[var(--text-color)] opacity-80 mb-6 max-w-md mx-auto space-y-4">
             <p>
-                我们现在推出了一个名为Anti-Fraud Bot的模型，它以对话方式检测诈骗。这种对话格式使Anti-Fraud Bot能够分析音频和文本输入，识别诈骗模式，提供警告并解释其推理。
+                我们推出了Anti-Fraud Bot，以对话方式检测诈骗。它能分析音频、图像和文本，识别诈骗模式，提供警告并解释推理。
             </p>
             <p>
-                我们很高兴推出Anti-Fraud Bot，以获取用户反馈并了解其优势和不足。在研究预览期间，Anti-Fraud Bot的使用是免费的。现在就到 <a href="https://nailu177.github.io/anti-fraud-bot" target="_blank" class="underline">nailu177.github.io/anti-fraud-bot</a>（在新窗口中打开）试试吧。
+                Anti-Fraud Bot现为免费研究预览，欢迎体验并反馈！访问 <a href="https://nailu177.github.io/anti-fraud-bot" target="_blank" class="underline hover:text-[var(--accent-color)]">nailu177.github.io/anti-fraud-bot</a>。
             </p>
         </div>
+
+        <!-- 功能亮点卡片 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="card">
+                <h3 class="text-lg font-semibold mb-2">多模态分析</h3>
+                <p class="text-sm opacity-80">集成文本、图像和音频分析，全面检测诈骗。</p>
+            </div>
+            <div class="card">
+                <h3 class="text-lg font-semibold mb-2">实时反馈</h3>
+                <p class="text-sm opacity-80">快速处理输入，提供即时的风险评估。</p>
+            </div>
+            <div class="card">
+                <h3 class="text-lg font-semibold mb-2">用户自定义</h3>
+                <p class="text-sm opacity-80">支持用户定制专属防诈骗模型。</p>
+            </div>
+        </div>
+
+        <!-- 交互式检测输入框 -->
+        <div class="mb-8">
+            <h3 class="text-lg font-semibold mb-4">守卫你的财产安全</h3>
+            <div class="detect-container">
+                <input type="text" id="fraudInput" placeholder="输入可疑文本" class="detect-input">
+                <button id="detectBtn" class="detect-btn">
+                    <svg id="detectIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                    <svg id="loadingSpinner" class="hidden w-5 h-5 spinner" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </button>
+            </div>
+            <div id="detectResult" class="detect-result card max-w-2xl mx-auto hidden">
+                <p id="resultText"></p>
+            </div>
+        </div>
+
+        <!-- 按钮 -->
         <div class="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4 mb-8">
-            <a href="detect.html" class="chatgpt-btn px-6 py-3 rounded-full flex items-center justify-center">
+            <a href="detect.html" class="chatgpt-btn">
                 体验Anti-Fraud Bot
-                <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                 </svg>
             </a>
-            <a href="learn.html" class="chatgpt-btn px-6 py-3 rounded-full flex items-center justify-center">
+            <a href="learn.html" class="chatgpt-btn">
                 了解Anti-Fraud Bot的更多
-                <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                 </svg>
             </a>
         </div>
-        <!-- 描述和入口 -->
-        <div class="max-w-md mx-auto">
-            <p class="text-sm text-[var(--text-color)] opacity-80 mb-4">
-                尝试全新的 Anti-Fraud Pic Bot，检测聊天记录截屏，快速检测诈骗或创建属于您的防诈骗bot
-            </p>
-            <div class="flex justify-center space-x-6">
-                <a href="chat.html" class="text-btn flex items-center">
-                    Anti-Fraud Pic Bot
-                    <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                </a>
-                <a href="custom.html" class="text-btn flex items-center">
-                    自定义bot
-                    <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                </a>
+
+        <!-- FAQ -->
+        <div class="max-w-2xl mx-auto mb-8">
+            <h3 class="text-lg font-semibold mb-4">常见问题</h3>
+            <div class="space-y-2">
+                <div class="faq-item card">
+                    <h4 class="text-sm font-semibold">Anti-Fraud Bot 如何工作？</h4>
+                    <div class="faq-content">
+                        <p class="text-sm opacity-80 mt-2">它通过分析文本、图像和音频中的模式，结合AI模型识别潜在诈骗行为。</p>
+                    </div>
+                </div>
+                <div class="faq-item card">
+                    <h4 class="text-sm font-semibold">是否需要注册？</h4>
+                    <div class="faq-content">
+                        <p class="text-sm opacity-80 mt-2">在Anti-Fraud Bot的研究预览期间无需注册，免费体验所有功能。Anti-Fraud Pic Bot要求注册登录使用</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 最新动态 -->
+        <div class="max-w-2xl mx-auto mb-8">
+            <h3 class="text-lg font-semibold mb-4">最新动态</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="card">
+                    <h4 class="text-sm font-semibold mb-2">Anti-Fraud Pic Bot 发布</h4>
+                    <p class="text-sm opacity-80 mb-2">支持图像检测，能够快速识别诈骗图片内容。</p>
+                    <a href="chat.html" class="text-btn text-sm">
+                        了解更多
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </a>
+                </div>
+                <div class="card">
+                    <h4 class="text-sm font-semibold mb-2">自定义 Bot 功能</h4>
+                    <p class="text-sm opacity-80 mb-2">创建属于你的专属防诈骗 Bot，满足个性化需求。</p>
+                    <a href="custom.html" class="text-btn text-sm">
+                        了解更多
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- 返回顶部按钮 -->
+    <button id="backToTop" title="返回顶部">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+        </svg>
+    </button>
+
+    <!-- Toast 提示 -->
+    <div id="toast" class="hidden fixed bottom-6 right-6 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg toast"></div>
+
     <script>
+        // 下拉菜单
         const menuButton = document.getElementById('menuButton');
         const dropdownMenu = document.getElementById('dropdownMenu');
-
         menuButton.addEventListener('click', () => {
             dropdownMenu.classList.toggle('show');
         });
-
         document.addEventListener('click', (event) => {
             if (!menuButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
                 dropdownMenu.classList.remove('show');
             }
+        });
+
+        // 粒子背景
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const particles = [];
+        for (let i = 0; i < 100; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                radius: Math.random() * 2 + 1,
+                vx: Math.random() * 0.5 - 0.25,
+                vy: Math.random() * 0.5 - 0.25
+            });
+        }
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            particles.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fill();
+                p.x += p.vx;
+                p.y += p.vy;
+                if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+            });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        // 检测函数（从 detect.html 复用）
+        async function detect(input, type) {
+            if (type === 'text') {
+                try {
+                    const response = await fetch('/detect_text', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ text: input })
+                    });
+                    if (!response.ok) throw new Error('检测失败');
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error:', error);
+                    return { error: '文本检测失败' };
+                }
+            }
+        }
+
+        // 显示提示
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.remove('hidden', 'opacity-0', 'translate-y-4');
+            toast.classList.add('opacity-100', 'translate-y-0');
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-4');
+                setTimeout(() => toast.classList.add('hidden'), 300);
+            }, 3000);
+        }
+
+        // 检测输入框
+        const detectBtn = document.getElementById('detectBtn');
+        const detectResult = document.getElementById('detectResult');
+        const fraudInput = document.getElementById('fraudInput');
+        const detectIcon = document.getElementById('detectIcon');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const resultText = document.getElementById('resultText');
+
+        detectBtn.addEventListener('click', async () => {
+            const inputText = fraudInput.value.trim();
+            if (!inputText) {
+                showToast('请提供输入内容');
+                return;
+            }
+
+            detectBtn.disabled = true;
+            detectBtn.classList.add('disabled');
+            detectIcon.classList.add('hidden');
+            loadingSpinner.classList.remove('hidden');
+            detectResult.classList.add('hidden');
+            resultText.innerHTML = '';
+
+            const result = await detect(inputText, 'text');
+
+            if (result.error) {
+                resultText.innerHTML = `
+                    <p class="text-red-500 text-sm">${result.error}</p>
+                `;
+            } else {
+                resultText.innerHTML = `
+                    <p class="text-sm font-medium text-[var(--text-color)]">文本: ${inputText.slice(0, 20)}${inputText.length > 20 ? '...' : ''}</p>
+                    <p class="text-sm text-[var(--text-color)] opacity-80">预测: ${result.prediction || '未知'}</p>
+                    <p class="text-sm text-[var(--text-color)] opacity-80">置信度: ${result.confidence ? result.confidence.toFixed(4) : '未知'}</p>
+                    <p class="text-sm"><span class="font-medium text-[var(--text-color)]">提示: </span><span class="${result.fraudAlert ? 'text-red-500' : 'text-green-500'}">${result.fraudAlert ? '检测到诈骗！请提高警惕！政府反诈骗专线为96110，请及时制止当前对话，求助警方' : '无诈骗风险，请保护好个人信息'}</span></p>
+                `;
+            }
+
+            detectResult.classList.remove('hidden');
+            detectBtn.disabled = false;
+            detectBtn.classList.remove('disabled');
+            detectIcon.classList.remove('hidden');
+            loadingSpinner.classList.add('hidden');
+        });
+
+        // FAQ展开
+        document.querySelectorAll('.faq-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const content = item.querySelector('.faq-content');
+                content.classList.toggle('show');
+            });
+        });
+
+        // 返回顶部
+        const backToTop = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            backToTop.style.display = window.scrollY > 300 ? 'block' : 'none';
+        });
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     </script>
 </body>
